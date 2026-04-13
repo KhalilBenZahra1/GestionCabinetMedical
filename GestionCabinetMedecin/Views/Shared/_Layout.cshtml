@@ -30,12 +30,27 @@
 
                     <!-- Liens de navigation à gauche -->
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- Lien Home -->
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
+                        <!-- Lien Privacy -->
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
+                        <!-- Liens visibles uniquement si l'utilisateur connecté est un médecin -->
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Medecin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Medecin" asp-action="MonCompte">Mon compte</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Medecin" asp-action="ListeSecretaires">Secrétaires</a>
+                            </li>
+                        }
                     </ul>
 
                     <!-- Zone utilisateur à droite :
