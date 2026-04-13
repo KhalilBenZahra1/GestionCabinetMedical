@@ -1,25 +1,29 @@
-﻿using System.Security.Claims;
-using GestionCabinetMedecin.data;
+﻿using GestionCabinetMedecin.Models;
 using GestionCabinetMedecin.ViewModels;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GestionCabinetMedecin.Controllers
 {
     public class AccountController : Controller
     {
-        // Injection du contexte de base de données
-        private readonly CabinetDbContext _context;
+        // Service Identity pour connecter / déconnecter un utilisateur
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(CabinetDbContext context)
+        // Service Identity pour accéder aux utilisateurs
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        // Constructeur : injection des services Identity
+        public AccountController(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         // -----------------------------
-        // Action GET : afficher la page Login
+        // GET : afficher la page Login
         // -----------------------------
         [HttpGet]
         public IActionResult Login()
@@ -28,110 +32,56 @@ namespace GestionCabinetMedecin.Controllers
         }
 
         // -----------------------------
-        // Action POST : traiter le formulaire Login
+        // POST : traiter le formulaire de connexion
         // -----------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // Vérifie si les champs du formulaire sont valides
+            // Vérifie si les données du formulaire sont valides
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Variable qui indique si l'utilisateur a été trouvé
-            bool utilisateurValide = false;
+            // Recherche l'utilisateur par email
+            var user = await _userManager.FindByEmailAsync(model.Email);
 
-            // Nom complet à stocker dans les claims
-            string nomComplet = "";
-
-            // -----------------------------
-            // Vérification si le rôle choisi est Medecin
-            // -----------------------------
-            if (model.Role == "Medecin")
+            // Si l'utilisateur n'existe pas
+            if (user == null)
             {
-                var medecin = await _context.Medecins
-                    .FirstOrDefaultAsync(m =>
-                        m.Email == model.Email &&
-                        m.MotDePasse == model.MotDePasse);
-
-                if (medecin != null)
-                {
-                    utilisateurValide = true;
-                    nomComplet = medecin.Nom + " " + medecin.Prenom;
-                }
-            }
-
-            // -----------------------------
-            // Vérification si le rôle choisi est Secretaire
-            // -----------------------------
-            else if (model.Role == "Secretaire")
-            {
-                var secretaire = await _context.Secretaires
-                    .FirstOrDefaultAsync(s =>
-                        s.Email == model.Email &&
-                        s.MotDePasse == model.MotDePasse);
-
-                if (secretaire != null)
-                {
-                    utilisateurValide = true;
-                    nomComplet = secretaire.SecretaireName + " " + secretaire.SecretaireSurname;
-                }
-            }
-
-            // -----------------------------
-            // Si aucun utilisateur correspondant n'a été trouvé
-            // -----------------------------
-            if (!utilisateurValide)
-            {
-                ModelState.AddModelError("", "Email, mot de passe ou rôle incorrect.");
+                ModelState.AddModelError("", "Email ou mot de passe incorrect.");
                 return View(model);
             }
 
-            // -----------------------------
-            // Création des informations d'authentification (claims)
-            // -----------------------------
-            var claims = new List<Claim>
+            // Tentative de connexion sécurisée avec Identity
+            var result = await _signInManager.PasswordSignInAsync(
+                user.UserName!,          // nom d'utilisateur
+                model.Password,          // mot de passe saisi
+                model.RememberMe,        // mémoriser ou non la connexion
+                false                    // verrouillage désactivé pour l'instant
+            );
+
+            // Si la connexion réussit
+            if (result.Succeeded)
             {
-                // Nom affiché de l'utilisateur connecté
-                new Claim(ClaimTypes.Name, nomComplet),
+                return RedirectToAction("Index", "Home");
+            }
 
-                // Email de l'utilisateur
-                new Claim(ClaimTypes.Email, model.Email),
-
-                // Rôle : Medecin ou Secretaire
-                new Claim(ClaimTypes.Role, model.Role)
-            };
-
-            // Création de l'identité utilisateur basée sur les claims
-            var claimsIdentity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme
-            );
-
-            // Création du principal utilisateur
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            // Connexion réelle de l'utilisateur via cookie
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                claimsPrincipal
-            );
-
-            // Redirection après connexion réussie
-            return RedirectToAction("Index", "Home");
+            // Si la connexion échoue
+            ModelState.AddModelError("", "Email ou mot de passe incorrect.");
+            return View(model);
         }
 
         // -----------------------------
-        // Action Logout : déconnexion
+        // Déconnexion
         // -----------------------------
         public async Task<IActionResult> Logout()
         {
             // Supprime le cookie d'authentification
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
 
-            // Redirige vers la page Login
+            // Retour vers la page Login
             return RedirectToAction("Login", "Account");
         }
 

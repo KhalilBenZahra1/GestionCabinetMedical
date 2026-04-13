@@ -4,18 +4,17 @@ namespace GestionCabinetMedecin.ViewModels
 {
     public class LoginViewModel
     {
-        // Email saisi par l'utilisateur
+        // Email saisi dans le formulaire
         [Required(ErrorMessage = "L'email est obligatoire.")]
         [EmailAddress(ErrorMessage = "Format d'email invalide.")]
         public string Email { get; set; }
 
-        // Mot de passe saisi par l'utilisateur
+        // Mot de passe saisi dans le formulaire
         [Required(ErrorMessage = "Le mot de passe est obligatoire.")]
         [DataType(DataType.Password)]
-        public string MotDePasse { get; set; }
+        public string Password { get; set; }
 
-        // Rôle choisi dans le formulaire : Medecin ou Secretaire
-        [Required(ErrorMessage = "Le rôle est obligatoire.")]
-        public string Role { get; set; }
+        // Permet de mémoriser la connexion si on veut plus tard
+        public bool RememberMe { get; set; }
     }
 }

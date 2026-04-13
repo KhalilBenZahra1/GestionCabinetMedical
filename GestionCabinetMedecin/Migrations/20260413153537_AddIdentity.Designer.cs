@@ -4,6 +4,7 @@ using GestionCabinetMedecin.data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionCabinetMedecin.Migrations
 {
     [DbContext(typeof(CabinetDbContext))]
-    partial class CabinetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413153537_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,6 +150,17 @@ namespace GestionCabinetMedecin.Migrations
                     b.HasKey("IdMedecin");
 
                     b.ToTable("Medecins");
+
+                    b.HasData(
+                        new
+                        {
+                            IdMedecin = 1,
+                            Email = "kb6004710@gmail.com",
+                            MotDePasse = "1234",
+                            Nom = "Khalil",
+                            NumeroTel = "1234",
+                            Prenom = "Doctor"
+                        });
                 });
 
             modelBuilder.Entity("GestionCabinetMedecin.Models.Notification", b =>
@@ -302,6 +316,17 @@ namespace GestionCabinetMedecin.Migrations
                     b.HasKey("IdSecretaire");
 
                     b.ToTable("Secretaires");
+
+                    b.HasData(
+                        new
+                        {
+                            IdSecretaire = 1,
+                            Email = "benzahra.khalil@yahoo.com",
+                            MotDePasse = "1234",
+                            Phone = "5678",
+                            SecretaireName = "Sara",
+                            SecretaireSurname = "Ali"
+                        });
                 });
 
             modelBuilder.Entity("GestionCabinetMedecin.Models.Traitement", b =>
