@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using GestionCabinetMedecin.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -6,6 +7,7 @@ namespace GestionCabinetMedecin.Controllers
 {
     public class HomeController : Controller
     {
+        [Authorize]
         public IActionResult Index()
         {
             return View();
@@ -21,5 +23,7 @@ namespace GestionCabinetMedecin.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
     }
 }
