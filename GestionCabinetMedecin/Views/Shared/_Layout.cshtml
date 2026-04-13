@@ -51,6 +51,14 @@
                                 <a class="nav-link text-dark" asp-controller="Medecin" asp-action="ListeSecretaires">Secrétaires</a>
                             </li>
                         }
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Secretaire"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Secretaire" asp-action="ChangerMotDePasse">
+                                    Changer mot de passe
+                                </a>
+                            </li>
+                        }
                     </ul>
 
                     <!-- Zone utilisateur à droite :
@@ -59,22 +67,15 @@
                     <div class="d-flex align-items-center">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
+                            <!-- Affichage du nom de l'utilisateur connecté -->
                             <span class="me-3">
                                 Bonjour @User.Identity.Name
                             </span>
-
+                            <!-- Bouton de déconnexion -->
                             <a class="btn btn-outline-danger btn-sm"
-                                   asp-controller="Account"
-                                   asp-action="Logout">
+                               asp-controller="Account"
+                               asp-action="Logout">
                                 Déconnexion
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-outline-primary btn-sm"
-                                   asp-controller="Account"
-                                   asp-action="Login">
-                                Connexion
                             </a>
                         }
                     </div>

@@ -40,9 +40,20 @@ namespace GestionCabinetMedecin.data
                 // Création de l'utilisateur médecin
                 medecinUser = new ApplicationUser
                 {
+                    // Nom d'utilisateur utilisé par Identity
                     UserName = medecinEmail,
+
+                    // Email du médecin
                     Email = medecinEmail,
+
+                    // Nom et prénom obligatoires dans ApplicationUser
+                    Nom = "Khalil",
+                    Prenom = "Doctor",
+
+                    // Rôle logique personnalisé
                     RoleName = "Medecin",
+
+                    // Email confirmé automatiquement
                     EmailConfirmed = true
                 };
 
@@ -67,9 +78,20 @@ namespace GestionCabinetMedecin.data
                 // Création de l'utilisateur secrétaire
                 secretaireUser = new ApplicationUser
                 {
+                    // Nom d'utilisateur utilisé par Identity
                     UserName = secretaireEmail,
+
+                    // Email de la secrétaire
                     Email = secretaireEmail,
+
+                    // Nom et prénom obligatoires dans ApplicationUser
+                    Nom = "Sara",
+                    Prenom = "Ali",
+
+                    // Rôle logique personnalisé
                     RoleName = "Secretaire",
+
+                    // Email confirmé automatiquement
                     EmailConfirmed = true
                 };
 

@@ -97,6 +97,59 @@ namespace GestionCabinetMedecin.Controllers
             return View(model);
         }
 
+        // -----------------------------
+        // GET : afficher la page de changement de mot de passe du médecin
+        // -----------------------------
+        [HttpGet]
+        public IActionResult ChangerMotDePasse()
+        {
+            return View();
+        }
+
+        // -----------------------------
+        // POST : enregistrer le changement de mot de passe du médecin
+        // -----------------------------
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangerMotDePasse(ChangePasswordViewModel model)
+        {
+            // Vérifie la validité du formulaire
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Récupère l'utilisateur actuellement connecté
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Change le mot de passe en vérifiant l'ancien
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                model.OldPassword,
+                model.NewPassword
+            );
+
+            // Si le changement a réussi
+            if (result.Succeeded)
+            {
+                ViewBag.Success = "Mot de passe modifié avec succès.";
+                return View();
+            }
+
+            // Si erreurs, on les affiche
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
+        }
+
         // =========================================================
         // 2) LISTE DES SECRETAIRES
         // =========================================================
